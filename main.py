@@ -1,6 +1,9 @@
 import pandas as pd
 import pickle
 import sqlite3
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 from datetime import datetime
 from typing import Annotated
 from pathlib import Path
@@ -11,6 +14,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 # db path
 db_path = "./database/wine.db"
@@ -19,7 +23,7 @@ cx = sqlite3.connect(db_path)
 # get cursor
 cu = cx.cursor()
 # create prediction table if not exist
-cu.execute("DROP TABLE IF EXISTS prediction;")
+# cu.execute("DROP TABLE IF EXISTS prediction;")
 cu.executescript(
     """
     CREATE TABLE IF NOT EXISTS prediction (
@@ -46,11 +50,16 @@ cx.close()
 log_pipe_path = "./model/log_pipe.pickle"
 log_pipe_file = Path(log_pipe_path)
 
+# load csv file
+df = pd.read_csv(open("./data/winequality-red.csv"))
+
+# plot alcohol vs quality
+image_path = "./static/quality_vs_alcohol.png"
+# sns.boxplot(x="quality", y="alcohol", data=df)
+# plt.savefig(image_path, dpi=400)
+
 # create model if not exist
 if not log_pipe_file.exists():
-    # load csv file
-    df = pd.read_csv(open("./data/winequality-red.csv"))
-
     # split independent and dependent df values
     y = df.values[:, 11]
     X = df.values[:, 0:11]
@@ -79,6 +88,7 @@ if not log_pipe_file.exists():
 
 app = FastAPI()
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
@@ -213,6 +223,7 @@ def get_home(request: Request):
         context={
             "top_predictions": top_predictions,
             "recent_predictions": recent_prediction,
+            "src": image_path,
         },
     )
 
