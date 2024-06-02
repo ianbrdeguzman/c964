@@ -53,10 +53,41 @@ log_pipe_file = Path(log_pipe_path)
 # load csv file
 df = pd.read_csv(open("./data/winequality-red.csv"))
 
-# plot alcohol vs quality
-image_path = "./static/quality_vs_alcohol.png"
+# plot box
+box_path = "./static/box.png"
 # sns.boxplot(x="quality", y="alcohol", data=df)
-# plt.savefig(image_path, dpi=400)
+# plt.savefig(box_path, dpi=400)
+
+# plot histograms
+histogram_path = "./static/histogram.png"
+# fig, axes = plt.subplots(nrows=4, ncols=3, figsize=(20, 20))
+#
+# colors = [
+#     "#491D8B",
+#     "#6929C4",
+#     "#8A3FFC",
+#     "#A56EFF",
+#     "#7D3AC1",
+#     "#AF4BCE",
+#     "#DB4CB2",
+#     "#EB548C",
+#     "#EC96E0",
+#     "#A2128E",
+#     "#E8D9F3",
+#     "#641811",
+# ]
+#
+# for index, column in enumerate(df.columns):
+#     ax = axes.flatten()[index]
+#     ax.hist(df[column], color=colors[index], label=column)
+#     ax.legend(loc="best")
+# plt.savefig(histogram_path)
+
+# plot heatmap
+heatmap_path = "./static/heatmap.png"
+# plt.figure(figsize=[20, 10], facecolor="white")
+# sns.heatmap(df.corr(), annot=True, linewidths=2, cmap="magma")
+# plt.savefig(heatmap_path)
 
 # create model if not exist
 if not log_pipe_file.exists():
@@ -223,7 +254,9 @@ def get_home(request: Request):
         context={
             "top_predictions": top_predictions,
             "recent_predictions": recent_prediction,
-            "src": image_path,
+            "box_src": box_path,
+            "histogram_src": histogram_path,
+            "heatmap_src": heatmap_path,
         },
     )
 
@@ -294,5 +327,8 @@ def post_home(
             "prediction": prediction,
             "top_predictions": top_predictions,
             "recent_predictions": recent_predictions,
+            "box_src": box_path,
+            "histogram_src": histogram_path,
+            "heatmap_src": heatmap_path,
         },
     )
